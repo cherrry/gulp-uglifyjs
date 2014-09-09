@@ -142,11 +142,23 @@ module.exports = function(filename, options) {
     this.push(compressedFile);
 
     if (options.outSourceMap) {
+
+      // Specify source root relative to output source map
+      var contents = options.output.source_map.toString();
+      if (options.sourceRoot) {
+        contents = JSON.parse(contents);
+        var sources = contents.sources;
+        for (var i = 0, _len = sources.length; i < _len; i++) {
+          sources[i] = options.sourceRoot + sources[i];
+        }
+        contents = JSON.stringify(contents);
+      }
+
       var sourceMap = new File({
         cwd: baseFile.cwd,
         base: baseFile.base,
         path: path.join(baseFile.base, options.outSourceMap),
-        contents: new Buffer(options.output.source_map.toString())
+        contents: new Buffer(contents)
       });
 
       this.push(sourceMap);
